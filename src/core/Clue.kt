@@ -7,7 +7,7 @@ package core
  *  positive).
  */
 data class Clue(val hint: String, val count: Int) {
-    fun valid(): Boolean {
+    fun valid(board: Board): Boolean {
         if (count <= 0) {
             return false
         }
@@ -20,7 +20,13 @@ data class Clue(val hint: String, val count: Int) {
             return false
         }
 
+        // check that the hint is not on the board
+        if (board.words().contains(hint)) {
+            return false
+        }
+
         // TODO: check that the hint is an English word
+        // TODO: check that the hint has not been used before?
 
         return true
     }

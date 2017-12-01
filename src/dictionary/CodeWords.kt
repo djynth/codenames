@@ -7,7 +7,7 @@ import kotlin.streams.toList
 
 class CodeWords {
 
-    private val filename = "original.txt"
+    private val filename = "assets/original.txt"
     private val words: List<String>
 
     init {

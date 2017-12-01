@@ -4,16 +4,23 @@ import dictionary.CodeWords
 import extractByCount
 import player.Player
 import player.Spymaster
+import java.util.*
 
-class Board(game: Game) {
+class Board(rand: Random, first: Team) {
     // cards[i][j] = card at row i and column j
     // 0 <= i < ROWS; 0 <= j < COLS
     private val cards: Array<Array<Card>>
 
     init {
         val dict = CodeWords()
-        val words = dict.pickWords(totalCards(), game.rand).toList()
-        val teams = game.teamCounts.extractByCount(game.rand)
+        val words = dict.pickWords(totalCards(), rand).map { it.toLowerCase() }
+        val teamCounts = mapOf(
+                Pair(Team.RED,  if (first == Team.RED) FIRST_TEAM_CARDS else SECOND_TEAM_CARDS),
+                Pair(Team.BLUE, if (first == Team.BLUE) FIRST_TEAM_CARDS else SECOND_TEAM_CARDS),
+                Pair(Team.ASSASSIN, Board.ASSASSIN_CARDS),
+                Pair(Team.NEUTRAL, Board.neutralCards())
+        )
+        val teams = teamCounts.extractByCount(rand)
         var index = -1
         cards = Array(ROWS, { Array(COLS, {
             index++
@@ -46,6 +53,11 @@ class Board(game: Game) {
         return cards.flatMap { it.filter { it.revealed && it.team == team } }
     }
 
+    fun cards(): Array<Array<Card>> {
+        // TODO: clone?
+        return cards
+    }
+
     fun visibleTo(player: Player): Array<Array<Card>> {
         return Array(ROWS, { row -> Array(COLS, { col ->
             val card = cards[row][col]
@@ -54,12 +66,23 @@ class Board(game: Game) {
         }) })
     }
 
+    fun words(): Set<String> {
+        return cards.flatMap { it.map { it.word } }.toSet()
+    }
+
     companion object {
         const val ROWS = 5
         const val COLS = 5
+        const val FIRST_TEAM_CARDS = 9
+        const val SECOND_TEAM_CARDS = 8
+        const val ASSASSIN_CARDS = 1
 
         fun totalCards(): Int {
             return ROWS * COLS
+        }
+
+        fun neutralCards(): Int {
+            return Board.totalCards() - FIRST_TEAM_CARDS - SECOND_TEAM_CARDS - ASSASSIN_CARDS
         }
     }
 }

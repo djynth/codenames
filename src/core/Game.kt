@@ -6,34 +6,29 @@ import player.Guesser
 import player.Spymaster
 import java.util.*
 
-// TODO: add game history
+// TODO: error returns for invalid clues/guesses
 
-class Game(seed: Long = 0) {
-    val rand: Random = Random(seed)
-    val teamCounts: Map<Team, Int>
+class Game(
+        seed: Long = 0,
+        private val redSpymaster: Spymaster = DummySpymaster(Team.RED),
+        private val blueSpymaster: Spymaster = DummySpymaster(Team.BLUE),
+        private val redGuesser: Guesser = DummyGuesser(Team.RED),
+        private val blueGuesser: Guesser = DummyGuesser(Team.BLUE)
+) {
+    private val rand: Random = Random(seed)
     private var currentTeam: Team
-    private val board: Board
+    val board: Board
 
-    private val redSpymaster: Spymaster = DummySpymaster(Team.RED, this)
-    private val blueSpymaster: Spymaster = DummySpymaster(Team.BLUE, this)
-    private val redGuesser: Guesser = DummyGuesser(Team.RED, this)
-    private val blueGuesser: Guesser = DummyGuesser(Team.BLUE, this)
+    private val history = mutableListOf<Pair<Clue, List<Square>>>()
 
     init {
-        val first = if (rand.nextBoolean()) Team.RED else Team.BLUE
-        currentTeam = first
-        teamCounts = mapOf(
-                Pair(Team.RED,  if (first == Team.RED) FIRST_TEAM_CARDS else SECOND_TEAM_CARDS),
-                Pair(Team.BLUE, if (first == Team.BLUE) FIRST_TEAM_CARDS else SECOND_TEAM_CARDS),
-                Pair(Team.ASSASSIN, ASSASSIN_CARDS),
-                Pair(Team.NEUTRAL, neutralCards())
-        )
-
-        board = Board(this)
+        currentTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
+        board = Board(rand, currentTeam)
     }
 
     fun play(): Team {
-        while (true) {
+        var winner: Team? = null
+        while (winner == null) {
             val (spymaster, guesser) = when (currentTeam) {
                 Team.RED -> Pair(redSpymaster, redGuesser)
                 Team.BLUE -> Pair(blueSpymaster, blueGuesser)
@@ -42,28 +37,34 @@ class Game(seed: Long = 0) {
 
             var clue: Clue
             do {
-                clue = spymaster.giveClue()
-            } while (!clue.valid())
+                clue = spymaster.giveClue(GameInfo(spymaster, this))
+            } while (!clue.valid(board))
 
+            // TODO: add each guess to the history as they are given
+
+            val guesses = mutableListOf<Square>()
             for (guessCount in 0 until clue.maxGuesses()) {
                 var guess: Square? = null
                 do {
-                    guess = guesser.guess(clue, guessCount) ?: break
+                    guess = guesser.guess(clue, guessCount, GameInfo(guesser, this)) ?: break
                 } while (guess?.valid() != true || board.isRevealed(guess))
 
                 if (guess == null) {
                     break
                 }
 
+                guesses.add(guess)
+
                 val card = board.reveal(guess)
 
                 if (card.team == Team.ASSASSIN) {
-                    return currentTeam.opponent()
-                }
-
-                val winner = winner()
-                if (winner != null) {
-                    return winner
+                    winner = currentTeam.opponent()
+                    break
+                } else {
+                    winner = winner()
+                    if (winner != null) {
+                        break
+                    }
                 }
 
                 val correct = when (card.team) {
@@ -76,8 +77,17 @@ class Game(seed: Long = 0) {
                 }
             }
 
+            history.add(Pair(clue, guesses.toList()))
+
             currentTeam = currentTeam.opponent()
         }
+
+        return winner
+    }
+
+    fun getHistory(): List<Pair<Clue, List<Square>>> {
+        // TODO: clone?
+        return history
     }
 
     private fun winner(): Team? {
@@ -90,15 +100,5 @@ class Game(seed: Long = 0) {
         }
 
         return null
-    }
-
-    companion object {
-        const val FIRST_TEAM_CARDS = 9
-        const val SECOND_TEAM_CARDS = 8
-        const val ASSASSIN_CARDS = 1
-
-        fun neutralCards(): Int {
-            return Board.totalCards() - FIRST_TEAM_CARDS - SECOND_TEAM_CARDS - ASSASSIN_CARDS
-        }
     }
 }

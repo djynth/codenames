@@ -1,11 +1,11 @@
 package player
 
 import core.Clue
-import core.Game
+import core.GameInfo
 import core.Team
 
-class DummySpymaster(team: Team, game: Game): Spymaster(team, game) {
-    override fun giveClue(): Clue {
+class DummySpymaster(team: Team): Spymaster(team) {
+    override fun giveClue(info: GameInfo): Clue {
         return Clue("clue", 1)
     }
 }
