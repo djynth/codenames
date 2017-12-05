@@ -54,8 +54,7 @@ class Board(rand: Random, first: Team) {
     }
 
     fun cards(): Array<Array<Card>> {
-        // TODO: clone?
-        return cards
+        return Array(cards.size, { row -> Array(cards[row].size, { col -> cards[row][col] }) })
     }
 
     fun visibleTo(player: Player): Array<Array<Card>> {
