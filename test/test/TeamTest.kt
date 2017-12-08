@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class TeamTest {
-
     @Test
     fun testOpponent() {
         assertEquals(Team.RED, Team.BLUE.opponent())

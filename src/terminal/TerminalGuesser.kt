@@ -6,7 +6,7 @@ import core.Square
 import core.Team
 import player.Guesser
 
-class TerminalGuesser(team: Team): Guesser(team) {
+class TerminalGuesser(team: Team) : Guesser(team) {
     override fun guess(clue: Clue, guessCount: Int, info: GameInfo): Square? {
         println()
         println("$team's turn to guess!")

@@ -8,7 +8,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SquareTest {
-
     @Test
     fun testValidity() {
         for (row in 1..Board.ROWS) {

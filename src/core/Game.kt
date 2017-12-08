@@ -17,9 +17,8 @@ class Game(
 ) {
     private val rand: Random = Random(seed)
     private var currentTeam: Team
-    val board: Board
-
     private val history = mutableListOf<Pair<Clue, List<Square>>>()
+    val board: Board
 
     init {
         currentTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE

@@ -7,10 +7,10 @@ data class Square(val row: Int, val col: Int) {
 
     companion object {
         /**
-         * All the valid squares on the board, in the conventional row-major order.
+         * All the valid squares on the board, in row-major order.
          */
-        val validSquares: List<Square> = (1..Board.ROWS).flatMap {
-            row -> (1..Board.COLS).map { col -> Square(row, col) }
+        val validSquares: List<Square> = (1..Board.ROWS).flatMap { row ->
+            (1..Board.COLS).map { col -> Square(row, col) }
         }
     }
 
