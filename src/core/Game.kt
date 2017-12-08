@@ -91,11 +91,11 @@ class Game(
     }
 
     private fun winner(): Team? {
-        if (board.unrevealed(Team.RED) == 0) {
+        if (board.unrevealed(Team.RED).isEmpty()) {
             return Team.RED
         }
 
-        if (board.unrevealed(Team.BLUE) == 0) {
+        if (board.unrevealed(Team.BLUE).isEmpty()) {
             return Team.BLUE
         }
 

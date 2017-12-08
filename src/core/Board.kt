@@ -7,9 +7,7 @@ import player.Spymaster
 import java.util.*
 
 class Board(rand: Random, first: Team) {
-    // cards[i][j] = card at row i and column j
-    // 0 <= i < ROWS; 0 <= j < COLS
-    private val cards: Array<Array<Card>>
+    private val cards: MutableMap<Square, Card>
 
     init {
         val dict = CodeWords()
@@ -21,52 +19,50 @@ class Board(rand: Random, first: Team) {
                 Pair(Team.NEUTRAL, Board.neutralCards())
         )
         val teams = teamCounts.extractByCount(rand)
-        var index = -1
-        cards = Array(ROWS, { Array(COLS, {
-            index++
-            Card(words[index], teams[index], false)
-        }) })
+        cards = Square.validSquares.map { square ->
+            val index = ((square.row-1) * Board.COLS) + (square.col-1)
+            Pair(square, Card(words[index], teams[index], false))
+        }.toMap().toMutableMap()
     }
 
     fun isRevealed(square: Square): Boolean {
-        return cards[square.row][square.col].revealed
+        return cards[square]?.revealed ?: throw Square.InvalidSquareException()
     }
 
     fun reveal(square: Square): Card {
-        val card = cards[square.row][square.col]
+        val card = cards[square] ?: throw Square.InvalidSquareException()
 
         if (card.revealed) {
             throw IllegalStateException()
         }
 
         val revealed = card.copy(revealed = true)
-        cards[square.row][square.col] = revealed
+        cards[square] = revealed
         return revealed
     }
 
-    // the number of unrevealed cards for the given team
-    fun unrevealed(team: Team): Int {
-        return cards.map { it.count { !it.revealed && it.team == team } }.sum()
+    fun unrevealed(team: Team): Collection<Card> {
+        return cards.filterValues { !it.revealed && it.team == team }.values
     }
 
     fun revealed(team: Team): Collection<Card> {
-        return cards.flatMap { it.filter { it.revealed && it.team == team } }
+        return cards.filterValues { it.revealed && it.team == team }.values
     }
 
-    fun cards(): Array<Array<Card>> {
-        return Array(cards.size, { row -> Array(cards[row].size, { col -> cards[row][col] }) })
+    fun cards(): Map<Square, Card> {
+        return cards.toMap()
     }
 
-    fun visibleTo(player: Player): Array<Array<Card>> {
-        return Array(ROWS, { row -> Array(COLS, { col ->
-            val card = cards[row][col]
+    fun visibleTo(player: Player): Map<Square, Card> {
+        return Square.validSquares.map { square ->
+            val card = cards[square] ?: throw IllegalStateException()
             val visible = player is Spymaster || card.revealed
-            card.copy(team = if (visible) card.team else null)
-        }) })
+            Pair(square, card.copy(team = if (visible) card.team else null))
+        }.toMap()
     }
 
     fun words(): Set<String> {
-        return cards.flatMap { it.map { it.word } }.toSet()
+        return cards.values.map { it.word }.toSet()
     }
 
     companion object {

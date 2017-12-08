@@ -2,6 +2,7 @@ package terminal
 
 import core.Board
 import core.Card
+import core.Square
 import core.Team
 
 const val ANSI_RESET = "\u001B[0m"
@@ -20,16 +21,16 @@ fun readNonemptyLine(): String {
     }
 }
 
-fun printBoard(board: Array<Array<Card>>) {
-    val maxLength = board.map { it.map { it.word.length }.max() ?: 0 }.max() ?: 0
+fun printBoard(board: Map<Square, Card>) {
+    val maxLength = board.values.map { it.word.length }.max() ?: 0
     val textWidth = ((maxLength + 3) * Board.COLS) + 1
 
     val sb = StringBuilder()
-    for (row in 0 until Board.ROWS) {
+    for (row in 1..Board.ROWS) {
         repeat(textWidth, { sb.append("-") })
         sb.appendln()
-        for (col in 0 until Board.COLS) {
-            val card = board[row][col]
+        for (col in 1..Board.COLS) {
+            val card = board[Square(row, col)] ?: throw Square.InvalidSquareException()
             val totalPadding = maxLength - card.word.length
             val padStart = totalPadding / 2
             val padEnd = totalPadding - padStart

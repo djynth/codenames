@@ -26,22 +26,20 @@ class BoardTest {
         val cards1 = board1.cards()
         val cards2 = board2.cards()
 
-        for (row in 0 until Board.ROWS) {
-            for (col in 0 until Board.COLS) {
-                assertFalse(board1.isRevealed(Square(row, col)))
-                assertEquals(cards1[row][col].word, cards2[row][col].word)
-            }
+        for (square in Square.validSquares) {
+            assertFalse(board1.isRevealed(square))
+            assertEquals(cards1[square]?.word, cards2[square]?.word)
         }
 
-        assertEquals(Board.FIRST_TEAM_CARDS, board1.unrevealed(Team.RED))
-        assertEquals(Board.SECOND_TEAM_CARDS, board1.unrevealed(Team.BLUE))
-        assertEquals(Board.ASSASSIN_CARDS, board1.unrevealed(Team.ASSASSIN))
-        assertEquals(Board.neutralCards(), board1.unrevealed(Team.NEUTRAL))
+        assertEquals(Board.FIRST_TEAM_CARDS, board1.unrevealed(Team.RED).size)
+        assertEquals(Board.SECOND_TEAM_CARDS, board1.unrevealed(Team.BLUE).size)
+        assertEquals(Board.ASSASSIN_CARDS, board1.unrevealed(Team.ASSASSIN).size)
+        assertEquals(Board.neutralCards(), board1.unrevealed(Team.NEUTRAL).size)
 
-        assertEquals(Board.SECOND_TEAM_CARDS, board2.unrevealed(Team.RED))
-        assertEquals(Board.FIRST_TEAM_CARDS, board2.unrevealed(Team.BLUE))
-        assertEquals(Board.ASSASSIN_CARDS, board2.unrevealed(Team.ASSASSIN))
-        assertEquals(Board.neutralCards(), board2.unrevealed(Team.NEUTRAL))
+        assertEquals(Board.SECOND_TEAM_CARDS, board2.unrevealed(Team.RED).size)
+        assertEquals(Board.FIRST_TEAM_CARDS, board2.unrevealed(Team.BLUE).size)
+        assertEquals(Board.ASSASSIN_CARDS, board2.unrevealed(Team.ASSASSIN).size)
+        assertEquals(Board.neutralCards(), board2.unrevealed(Team.NEUTRAL).size)
 
         assertEquals(0, board1.revealed(Team.RED).size)
         assertEquals(0, board1.revealed(Team.BLUE).size)
@@ -49,7 +47,7 @@ class BoardTest {
         assertEquals(0, board1.revealed(Team.NEUTRAL).size)
 
         assertEquals(Board.totalCards(), board1.words().size)
-        assertEquals(Board.totalCards(), board1.cards().map { it.size }.sum())
+        assertEquals(Board.totalCards(), board1.cards().size)
 
         assertEquals(board1.words(), board2.words())
     }
@@ -69,11 +67,17 @@ class BoardTest {
     @Test
     fun testIllegalModificationCards() {
         val cards = board1.cards()
-        for (i in 0 until cards.size) {
-            cards[i] = arrayOf()
+        if (cards is MutableMap) {
+            for (square in Square.validSquares) {
+                cards.remove(square)
+            }
+        } else {
+            val mutableCards = cards.toMutableMap()
+            for (square in Square.validSquares) {
+                mutableCards.remove(square)
+            }
         }
 
-        assertEquals(Board.totalCards(), board1.cards().map { it.size }.sum())
+        assertEquals(Board.totalCards(), board1.cards().size)
     }
-
 }

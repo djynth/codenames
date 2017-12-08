@@ -2,6 +2,17 @@ package core
 
 data class Square(val row: Int, val col: Int) {
     fun valid(): Boolean {
-        return row in 0 until Board.ROWS && col in 0 until Board.COLS
+        return row in 1..Board.ROWS && col in 1..Board.COLS
     }
+
+    companion object {
+        /**
+         * All the valid squares on the board, in the conventional row-major order.
+         */
+        val validSquares: List<Square> = (1..Board.ROWS).flatMap {
+            row -> (1..Board.COLS).map { col -> Square(row, col) }
+        }
+    }
+
+    class InvalidSquareException: Exception()
 }

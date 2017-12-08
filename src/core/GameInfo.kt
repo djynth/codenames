@@ -10,7 +10,7 @@ data class GameInfo(private val player: Player, private val game: Game) {
         return game.getHistory()
     }
 
-    fun getBoard(): Array<Array<Card>> {
+    fun getBoard(): Map<Square, Card> {
         return game.board.visibleTo(player)
     }
 
@@ -20,15 +20,6 @@ data class GameInfo(private val player: Player, private val game: Game) {
      */
     fun locationOf(word: String): Square? {
         val lower = word.toLowerCase()
-        return getBoard().mapIndexed { row, cards ->
-            val col = cards
-                    .mapIndexed { col, card -> if (card.word == lower) col else -1 }
-                    .firstOrNull { it >= 0 }
-            if (col == null) {
-                null
-            } else {
-                Square(row, col)
-            }
-        }.filterNotNull().firstOrNull()
+        return game.board.cards().entries.first { it.value.word == lower }.key
     }
 }
