@@ -4,8 +4,8 @@ import java.text.DecimalFormat
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.functions
 
-abstract class Benchmark<out K, in V> {
-    abstract val n: Long        // the number of times to run each test
+abstract class Benchmark<K, in V> {
+    abstract val n: Int
     abstract val name: String
     private val nFormat = DecimalFormat("#,###")
     private val timeFormat = DecimalFormat("#.000ns")
@@ -25,7 +25,7 @@ abstract class Benchmark<out K, in V> {
                 val output = test.call(this, input)
                 val end = System.nanoTime()
                 runtime += (end - start)
-                checkOutput(run, output)
+                checkOutput(run, input, output)
             }
 
             println("${test.name.padEnd(maxNameLength, ' ')} : ${timeFormat.format(runtime / n)}")
@@ -39,9 +39,9 @@ abstract class Benchmark<out K, in V> {
                 .sortedBy { it.name }
     }
 
-    abstract fun getInput(run: Long): K
+    abstract fun getInput(run: Int): K
 
-    open fun checkOutput(run: Long, output: V) { }
+    open fun checkOutput(run: Int, input: K, output: V) { }
 }
 
 @Target(AnnotationTarget.FUNCTION)
