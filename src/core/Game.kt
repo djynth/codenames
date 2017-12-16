@@ -16,14 +16,16 @@ class Game(
     private val rand: Random = Random(seed)
     private var currentTeam: Team
     private val history = mutableListOf<Pair<Clue, List<Square>>>()
-    private val blueSpymaster: Spymaster
-    private val redSpymaster: Spymaster
-    private val blueGuesser: Guesser
-    private val redGuesser: Guesser
+    val firstTeam: Team
+    val blueSpymaster: Spymaster
+    val redSpymaster: Spymaster
+    val blueGuesser: Guesser
+    val redGuesser: Guesser
     val board: Board
 
     init {
-        currentTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
+        firstTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
+        currentTeam = firstTeam
         board = Board(rand, currentTeam)
 
         blueSpymaster = spymasterFactory(Team.BLUE)
@@ -46,9 +48,8 @@ class Game(
                 clue = spymaster.giveClue(GameInfo(spymaster, this))
             } while (!clue.valid(board))
 
-            // TODO: add each guess to the history as they are given
-
             val guesses = mutableListOf<Square>()
+            history.add(Pair(clue, guesses))
             for (guessCount in 0 until clue.maxGuesses()) {
                 var guess: Square? = null
                 do {
@@ -78,8 +79,6 @@ class Game(
                     break
                 }
             }
-
-            history.add(Pair(clue, guesses.toList()))
 
             currentTeam = currentTeam.opponent()
         }

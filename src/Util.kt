@@ -13,3 +13,10 @@ fun <K> Map<K, Int>.extractByCount(rand: Random): List<K> {
     Collections.shuffle(values, rand)
     return values
 }
+
+/**
+ * Returns an arbitrary element of this Set, or null if the Set is empty.
+ */
+fun <E> Set<E>.getAny(): E? {
+    return find { true }
+}
