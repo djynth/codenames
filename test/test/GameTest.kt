@@ -1,7 +1,6 @@
 package test
 
 import core.Game
-import core.Team
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import player.DummyGuesser
@@ -14,13 +13,7 @@ class GameTest {
     @BeforeEach
     fun init() {
         val seed = 42L
-        dummyGame = Game(
-                seed,
-                DummySpymaster(Team.RED),
-                DummySpymaster(Team.BLUE),
-                DummyGuesser(Team.RED, seed),
-                DummyGuesser(Team.BLUE, seed)
-        )
+        dummyGame = Game(seed, { DummySpymaster(it) }, { DummyGuesser(it, seed) })
     }
 
     @Test

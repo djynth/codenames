@@ -10,19 +10,26 @@ import java.util.*
 
 class Game(
         seed: Long = 0,
-        private val redSpymaster: Spymaster = DummySpymaster(Team.RED),
-        private val blueSpymaster: Spymaster = DummySpymaster(Team.BLUE),
-        private val redGuesser: Guesser = DummyGuesser(Team.RED),
-        private val blueGuesser: Guesser = DummyGuesser(Team.BLUE)
+        spymasterFactory: (Team) -> Spymaster = { DummySpymaster(it) },
+        guesserFactory: (Team) -> Guesser = { DummyGuesser(it) }
 ) {
     private val rand: Random = Random(seed)
     private var currentTeam: Team
     private val history = mutableListOf<Pair<Clue, List<Square>>>()
+    private val blueSpymaster: Spymaster
+    private val redSpymaster: Spymaster
+    private val blueGuesser: Guesser
+    private val redGuesser: Guesser
     val board: Board
 
     init {
         currentTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
         board = Board(rand, currentTeam)
+
+        blueSpymaster = spymasterFactory(Team.BLUE)
+        redSpymaster = spymasterFactory(Team.RED)
+        blueGuesser = guesserFactory(Team.BLUE)
+        redGuesser = guesserFactory(Team.RED)
     }
 
     fun play(): Team {
@@ -66,11 +73,7 @@ class Game(
                     }
                 }
 
-                val correct = when (card.team) {
-                    Team.RED, Team.BLUE -> currentTeam == card.team
-                    else -> false
-                }
-
+                val correct = currentTeam == card.team
                 if (!correct) {
                     break
                 }
