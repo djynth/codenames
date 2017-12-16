@@ -16,7 +16,7 @@ class TerminalSpymaster(team: Team) : Spymaster(team) {
         println("Enter your clue:")
         val clue = readNonemptyLine()
         println("Enter your count:")
-        val count = readNonemptyLine().toInt()      // TODO: error checking on number conversion
+        val count = readNonemptyLine().toIntOrNull() ?: 0
 
         // add whitespace to cover the revealed board
         for (i in 1..50) {

@@ -74,8 +74,7 @@ class Game(
                     }
                 }
 
-                val correct = currentTeam == card.team
-                if (!correct) {
+                if (currentTeam != card.team) {
                     break
                 }
             }

@@ -42,11 +42,11 @@ class Board(rand: Random, first: Team) {
     }
 
     fun unrevealed(team: Team): Collection<Card> {
-        return cards.filterValues { !it.revealed && it.team == team }.values
+        return cards.values.filter { !it.revealed && it.team == team }
     }
 
     fun revealed(team: Team): Collection<Card> {
-        return cards.filterValues { it.revealed && it.team == team }.values
+        return cards.values.filter { it.revealed && it.team == team }
     }
 
     fun cards(): Map<Square, Card> {
@@ -58,7 +58,7 @@ class Board(rand: Random, first: Team) {
     }
 
     fun locationOf(word: String): Square? {
-        return cards.entries.find { it.value.word == word }?.key
+        return cards.entries.find { Card.wordsEqual(it.value.word, word) }?.key
     }
 
     fun visibleTo(player: Player): Map<Square, Card> {

@@ -6,7 +6,6 @@ import core.Game
 import core.GameInfo
 import core.Square
 import core.Team
-import getAny
 import org.junit.jupiter.api.Test
 import player.Guesser
 import kotlin.test.assertEquals
@@ -74,7 +73,7 @@ class GameTest {
                 return null
             }
 
-            return board.cards().filterValues { !it.revealed && it.team == team }.keys.getAny()
+            return board.cards().entries.find { !it.value.revealed && it.value.team == team }?.key
         }
     }
 
@@ -82,7 +81,7 @@ class GameTest {
         lateinit var board: Board
 
         override fun guess(clue: Clue, guessCount: Int, info: GameInfo): Square? {
-            return board.cards().filterValues { it.team == Team.ASSASSIN }.keys.getAny()
+            return board.cards().entries.find { it.value.team == Team.ASSASSIN }?.key
         }
     }
 }

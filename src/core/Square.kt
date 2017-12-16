@@ -14,5 +14,5 @@ data class Square(val row: Int, val col: Int) {
         }
     }
 
-    class InvalidSquareException: Exception()
+    class InvalidSquareException : Exception()
 }
