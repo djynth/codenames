@@ -2,7 +2,6 @@ package core
 
 import dictionary.CodeWords
 import extractByCount
-import getAny
 import player.Player
 import player.Spymaster
 import java.util.*
@@ -59,7 +58,7 @@ class Board(rand: Random, first: Team) {
     }
 
     fun locationOf(word: String): Square? {
-        return cards.filterValues { it.word == word }.keys.getAny()
+        return cards.entries.find { it.value.word == word }?.key
     }
 
     fun visibleTo(player: Player): Map<Square, Card> {

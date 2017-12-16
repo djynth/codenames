@@ -8,8 +8,6 @@ import core.Square
 import core.Team
 import getAny
 import org.junit.jupiter.api.Test
-import player.DummyGuesser
-import player.DummySpymaster
 import player.Guesser
 import kotlin.test.assertEquals
 
@@ -49,7 +47,7 @@ class GameTest {
     @Test
     fun testIllegalModificationHistory() {
         val seed = 42L
-        val dummyGame = Game(seed, { DummySpymaster(it) }, { DummyGuesser(it, seed) })
+        val dummyGame = Game(seed)
         dummyGame.play()
         val history = dummyGame.getHistory()
         val historySize = history.size

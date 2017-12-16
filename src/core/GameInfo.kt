@@ -19,7 +19,6 @@ data class GameInfo(private val player: Player, private val game: Game) {
      *  does not appear on the board.
      */
     fun locationOf(word: String): Square? {
-        val lower = word.toLowerCase()
-        return game.board.cards().entries.first { it.value.word == lower }.key
+        return game.board.locationOf(word.toLowerCase())
     }
 }

@@ -11,7 +11,7 @@ import java.util.*
 class Game(
         seed: Long = 0,
         spymasterFactory: (Team) -> Spymaster = { DummySpymaster(it) },
-        guesserFactory: (Team) -> Guesser = { DummyGuesser(it) }
+        guesserFactory: (Team) -> Guesser = { DummyGuesser(it, seed) }
 ) {
     private val rand: Random = Random(seed)
     private var currentTeam: Team
