@@ -85,8 +85,7 @@ class Game(
     }
 
     fun getHistory(): List<Pair<Clue, List<Square>>> {
-        // TODO: clone?
-        return history
+        return history.toList()
     }
 
     private fun winner(): Team? {
