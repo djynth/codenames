@@ -53,10 +53,6 @@ class Board(rand: Random, first: Team) {
         return cards.toMap()
     }
 
-    fun locationOf(card: Card): Square? {
-        return locationOf(card.word)
-    }
-
     fun locationOf(word: String): Square? {
         return cards.entries.find { Card.wordsEqual(it.value.word, word) }?.key
     }

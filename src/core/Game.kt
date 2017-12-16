@@ -45,8 +45,8 @@ class Game(
 
             var clue: Clue
             do {
-                clue = spymaster.giveClue(GameInfo(spymaster, this))
-            } while (!clue.valid(board))
+                clue = spymaster.giveClue(GameInfo(spymaster, this)).toLowercase()
+            } while (!clue.valid(this))
 
             val guesses = mutableListOf<Square>()
             history.add(Pair(clue, guesses))
