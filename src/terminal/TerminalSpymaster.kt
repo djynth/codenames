@@ -5,8 +5,8 @@ import core.GameInfo
 import core.Team
 import player.Spymaster
 
-class TerminalSpymaster(team: Team) : Spymaster(team) {
-    override fun giveClue(info: GameInfo): Clue {
+class TerminalSpymaster(team: Team, info: GameInfo) : Spymaster(team, info) {
+    override fun giveClue(): Clue {
         println()
         println("$team's turn to give a clue!")
         println()

@@ -1,24 +1,11 @@
 package core
 
-import player.Player
+class GameInfo(private val game: Game, private val spymaster: Boolean) {
+    fun getBoard(): Board {
+        return if (spymaster) game.board else game.board.visible()
+    }
 
-/**
- * Represents the state of the game as visible by a certain player.
- */
-data class GameInfo(private val player: Player, private val game: Game) {
-    fun getHistory(): List<Pair<Clue, List<Square>>> {
+    fun getHistory(): GameHistory {
         return game.getHistory()
-    }
-
-    fun getBoard(): Map<Square, Card> {
-        return game.board.visibleTo(player)
-    }
-
-    /**
-     * A convenience function to find the location of the given word on the board, or null if it
-     *  does not appear on the board.
-     */
-    fun locationOf(word: String): Square? {
-        return game.board.locationOf(word)
     }
 }

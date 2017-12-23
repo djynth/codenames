@@ -5,6 +5,10 @@ data class Square(val row: Int, val col: Int) {
         return row in 1..Board.ROWS && col in 1..Board.COLS
     }
 
+    fun validGuess(board: Board): Boolean {
+        return valid() && !board.isRevealed(this)
+    }
+
     companion object {
         /**
          * All the valid squares on the board, in row-major order.

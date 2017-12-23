@@ -2,43 +2,42 @@ package core
 
 import dictionary.CodeWords
 import extractByCount
-import player.Player
-import player.Spymaster
 import java.util.*
 
-class Board(rand: Random, first: Team) {
+class Board {
     private val cards: MutableMap<Square, Card>
 
-    init {
+    internal constructor(rand: Random, first: Team) {
         val dict = CodeWords()
-        val words = dict.pickWords(totalCards(), rand).map { it.toLowerCase() }
+        val words = dict.pickWords(totalCards(), rand).toList()
         val teamCounts = mapOf(
-                Pair(Team.RED,  if (first == Team.RED) FIRST_TEAM_CARDS else SECOND_TEAM_CARDS),
-                Pair(Team.BLUE, if (first == Team.BLUE) FIRST_TEAM_CARDS else SECOND_TEAM_CARDS),
+                Pair(first, FIRST_TEAM_CARDS),
+                Pair(first.opponent(), SECOND_TEAM_CARDS),
                 Pair(Team.ASSASSIN, Board.ASSASSIN_CARDS),
                 Pair(Team.NEUTRAL, Board.neutralCards())
         )
         val teams = teamCounts.extractByCount(rand)
-        cards = Square.validSquares.map { square ->
+
+        cards = mutableMapOf()
+        Square.validSquares.forEach { square ->
             val index = ((square.row-1) * Board.COLS) + (square.col-1)
-            Pair(square, Card(words[index], teams[index], false))
-        }.toMap().toMutableMap()
+            cards.put(square, Card(words[index], teams[index], false))
+        }
+    }
+
+    private constructor(cards: Map<Square, Card>) {
+        this.cards = mutableMapOf()
+        for ((square, card) in cards.entries) {
+            this.cards[square] = card.copy(team = if (card.revealed) card.team else null)
+        }
+    }
+
+    fun cardAt(square: Square): Card {
+        return cards[square] ?: throw Square.InvalidSquareException()
     }
 
     fun isRevealed(square: Square): Boolean {
         return cards[square]?.revealed ?: throw Square.InvalidSquareException()
-    }
-
-    fun reveal(square: Square): Card {
-        val card = cards[square] ?: throw Square.InvalidSquareException()
-
-        if (card.revealed) {
-            throw IllegalStateException()
-        }
-
-        val revealed = card.copy(revealed = true)
-        cards[square] = revealed
-        return revealed
     }
 
     fun unrevealed(team: Team): Collection<Card> {
@@ -53,20 +52,28 @@ class Board(rand: Random, first: Team) {
         return cards.toMap()
     }
 
+    fun words(): Set<String> {
+        return cards.values.map { it.word }.toSet()
+    }
+
     fun locationOf(word: String): Square? {
         return cards.entries.find { Card.wordsEqual(it.value.word, word) }?.key
     }
 
-    fun visibleTo(player: Player): Map<Square, Card> {
-        return Square.validSquares.map { square ->
-            val card = cards[square] ?: throw IllegalStateException()
-            val visible = player is Spymaster || card.revealed
-            Pair(square, card.copy(team = if (visible) card.team else null))
-        }.toMap()
+    internal fun reveal(square: Square): Card {
+        val card = cards[square] ?: throw Square.InvalidSquareException()
+
+        if (card.revealed) {
+            throw IllegalStateException()
+        }
+
+        val revealed = card.copy(revealed = true)
+        cards[square] = revealed
+        return revealed
     }
 
-    fun words(): Set<String> {
-        return cards.values.map { it.word }.toSet()
+    internal fun visible(): Board {
+        return Board(cards)
     }
 
     companion object {

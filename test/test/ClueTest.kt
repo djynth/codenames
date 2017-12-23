@@ -2,8 +2,10 @@ package test
 
 import core.Clue
 import core.Game
+import core.Team
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import player.DummyClient
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -13,12 +15,13 @@ class ClueTest {
 
     @BeforeEach
     fun init() {
-        game = Game(0)
+        game = Game(DummyClient(0))
     }
 
     @Test
     fun testWordsOnBoard() {
-        game.board.words().forEach { assertFalse(Clue(it, 1).valid(game)) }
+        game.board.words().forEach { assertFalse(Clue(it, 1).valid(game, Team.BLUE)) }
+        game.board.words().forEach { assertFalse(Clue(it, 1).valid(game, Team.RED)) }
     }
 
     @Test
@@ -29,32 +32,49 @@ class ClueTest {
     }
 
     @Test
-    fun testPositiveCount() {
-        assertFalse(Clue("hint", -3).valid(game))
-        assertFalse(Clue("hint", -2).valid(game))
-        assertFalse(Clue("hint", -1).valid(game))
-        assertFalse(Clue("hint", 0).valid(game))
-        assertTrue(Clue("hint", 1).valid(game))
-        assertTrue(Clue("hint", 2).valid(game))
+    fun testCount() {
+        assertFalse(Clue("hint", -3).valid(game, Team.BLUE))
+        assertFalse(Clue("hint", -3).valid(game, Team.RED))
+
+        assertFalse(Clue("hint", -2).valid(game, Team.BLUE))
+        assertFalse(Clue("hint", -2).valid(game, Team.RED))
+
+        assertTrue(Clue("hint", -1).valid(game, Team.BLUE))
+        assertTrue(Clue("hint", -1).valid(game, Team.RED))
+
+        assertTrue(Clue("hint", 0).valid(game, Team.BLUE))
+        assertTrue(Clue("hint", 0).valid(game, Team.RED))
+
+        assertTrue(Clue("hint", 1).valid(game, Team.BLUE))
+        assertTrue(Clue("hint", 1).valid(game, Team.RED))
+
+        assertTrue(Clue("hint", 2).valid(game, Team.BLUE))
+        assertTrue(Clue("hint", 2).valid(game, Team.RED))
+
+        for (team in setOf(Team.RED, Team.BLUE)) {
+            val max = game.cardsFor(team)
+            assertTrue(Clue("hint", max).valid(game, team))
+            assertFalse(Clue("hint", max + 1).valid(game, team))
+        }
     }
 
     @Test
     fun testNonEmpty() {
-        assertFalse(Clue("", 2).valid(game))
+        assertFalse(Clue("", 2).valid(game, Team.BLUE))
     }
 
     @Test
     fun testOneWord() {
-        assertTrue(Clue("oneword", 2).valid(game))
-        assertFalse(Clue("two words", 2).valid(game))
+        assertTrue(Clue("oneword", 2).valid(game, Team.BLUE))
+        assertFalse(Clue("two words", 2).valid(game, Team.BLUE))
     }
 
     @Test
     fun testCapitalization() {
-        assertTrue(Clue("lowercase", 2).valid(game))
-        assertFalse(Clue("MixedCase", 2).valid(game))
-        assertFalse(Clue("UPPERCASE", 2).valid(game))
-        assertTrue(Clue("MixedCase", 2).toLowercase().valid(game))
-        assertTrue(Clue("UPPERCASE", 2).toLowercase().valid(game))
+        assertTrue(Clue("lowercase", 2).valid(game, Team.BLUE))
+        assertFalse(Clue("MixedCase", 2).valid(game, Team.BLUE))
+        assertFalse(Clue("UPPERCASE", 2).valid(game, Team.BLUE))
+        assertTrue(Clue("MixedCase", 2).toLowercase().valid(game, Team.BLUE))
+        assertTrue(Clue("UPPERCASE", 2).toLowercase().valid(game, Team.BLUE))
     }
 }

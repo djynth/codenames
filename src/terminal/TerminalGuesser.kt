@@ -6,8 +6,8 @@ import core.Square
 import core.Team
 import player.Guesser
 
-class TerminalGuesser(team: Team) : Guesser(team) {
-    override fun guess(clue: Clue, guessCount: Int, info: GameInfo): Square? {
+class TerminalGuesser(team: Team, info: GameInfo) : Guesser(team, info) {
+    override fun guess(clue: Clue, guessCount: Int): Square? {
         println()
         println("$team's turn to guess!")
         println()
@@ -22,7 +22,7 @@ class TerminalGuesser(team: Team) : Guesser(team) {
                 return null
             }
 
-            val square = info.locationOf(guess)
+            val square = info.getBoard().locationOf(guess)
             if (square != null) {
                 return square
             }

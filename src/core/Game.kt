@@ -1,40 +1,24 @@
 package core
 
-import player.DummyGuesser
-import player.DummySpymaster
-import player.Guesser
-import player.Spymaster
 import java.util.*
 
 // TODO: error returns for invalid clues/guesses
 
-class Game(
-        seed: Long = 0,
-        spymasterFactory: (Team) -> Spymaster = { DummySpymaster(it) },
-        guesserFactory: (Team) -> Guesser = { DummyGuesser(it, seed) }
-) {
-    private val rand: Random = Random(seed)
-    private var currentTeam: Team
+class Game(client: GameClient) {
+    private val rand: Random = Random(client.seed())
     private val history = mutableListOf<Pair<Clue, List<Square>>>()
-    val firstTeam: Team
-    val blueSpymaster: Spymaster
-    val redSpymaster: Spymaster
-    val blueGuesser: Guesser
-    val redGuesser: Guesser
-    val board: Board
-
-    init {
-        firstTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
-        currentTeam = firstTeam
-        board = Board(rand, currentTeam)
-
-        blueSpymaster = spymasterFactory(Team.BLUE)
-        redSpymaster = spymasterFactory(Team.RED)
-        blueGuesser = guesserFactory(Team.BLUE)
-        redGuesser = guesserFactory(Team.RED)
-    }
+    private val listeners = mutableListOf<GameListener>()
+    private val firstTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
+    private var currentTeam = firstTeam
+    private val blueSpymaster = client.spymaster(Team.BLUE, GameInfo(this, true))
+    private val redSpymaster = client.spymaster(Team.RED, GameInfo(this, true))
+    private val blueGuesser = client.guesser(Team.BLUE, GameInfo(this, false))
+    private val redGuesser = client.guesser(Team.RED, GameInfo(this, false))
+    val board = Board(rand, currentTeam)
 
     fun play(): Team {
+        listeners.forEach { it.onGameStart(this) }
+
         var winner: Team? = null
         while (winner == null) {
             val (spymaster, guesser) = when (currentTeam) {
@@ -45,16 +29,16 @@ class Game(
 
             var clue: Clue
             do {
-                clue = spymaster.giveClue(GameInfo(spymaster, this)).toLowercase()
-            } while (!clue.valid(this))
+                clue = spymaster.giveClue().toLowercase()
+            } while (!clue.valid(this, currentTeam))
 
             val guesses = mutableListOf<Square>()
             history.add(Pair(clue, guesses))
             for (guessCount in 0 until clue.maxGuesses()) {
-                var guess: Square? = null
+                var guess: Square?
                 do {
-                    guess = guesser.guess(clue, guessCount, GameInfo(guesser, this)) ?: break
-                } while (guess?.valid() != true || board.isRevealed(guess))
+                    guess = guesser.guess(clue, guessCount)
+                } while (guess?.validGuess(board) == false)
 
                 if (guess == null) {
                     break
@@ -82,11 +66,25 @@ class Game(
             currentTeam = currentTeam.opponent()
         }
 
+        listeners.forEach { it.onGameOver(winner) }
+
         return winner
     }
 
-    fun getHistory(): List<Pair<Clue, List<Square>>> {
+    fun getHistory(): GameHistory {
         return history.toList()
+    }
+
+    fun addListener(listener: GameListener) {
+        listeners.add(listener)
+    }
+
+    fun cardsFor(team: Team): Int {
+        return if (team == firstTeam) Board.FIRST_TEAM_CARDS else Board.SECOND_TEAM_CARDS
+    }
+
+    fun firstTeam(): Team {
+        return firstTeam
     }
 
     private fun winner(): Team? {

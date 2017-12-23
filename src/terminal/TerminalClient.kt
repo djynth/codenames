@@ -1,6 +1,11 @@
 package terminal
 
 import core.Game
+import core.GameClient
+import core.GameInfo
+import core.Team
+import player.Guesser
+import player.Spymaster
 import java.util.*
 
 fun main(args: Array<String>) {
@@ -20,7 +25,8 @@ fun main(args: Array<String>) {
         seedPhrase.hashCode().toLong()
     }
 
-    val game = Game(seed, { TerminalSpymaster(it) }, { TerminalGuesser(it) })
+    val client = TerminalClient(seed)
+    val game = Game(client)
     val winner = game.play()
 
     println("$winner wins!")
@@ -28,7 +34,21 @@ fun main(args: Array<String>) {
     println("Game log:")
     println(game.getHistory())
     println()
-    printBoard(game.board.cards())
+    printBoard(game.board)
     println()
     println("Thanks for playing!")
+}
+
+class TerminalClient(private val seed: Long) : GameClient {
+    override fun seed(): Long {
+        return seed
+    }
+
+    override fun spymaster(team: Team, info: GameInfo): Spymaster {
+        return TerminalSpymaster(team, info)
+    }
+
+    override fun guesser(team: Team, info: GameInfo): Guesser {
+        return TerminalGuesser(team, info)
+    }
 }
