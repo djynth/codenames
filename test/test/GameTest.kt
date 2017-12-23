@@ -52,6 +52,8 @@ class GameTest {
         val history = game.getHistory()
 
         listener.checkHasEnded()
+        assertEquals(1, listener.totalClues)
+        assertEquals(1, listener.totalGuesses)
 
         // since the first team immediately guesses the assassin card, the second team wins
         assertEquals(game.firstTeam().opponent(), winner)
@@ -83,6 +85,9 @@ class GameTest {
     class TestListener : GameListener {
         private var hasStarted = false
         private var hasEnded = false
+        var totalClues = 0
+        var totalGuesses = 0
+
         override fun onGameStart(game: Game) {
             assert(!hasStarted)
             hasStarted = true
@@ -92,6 +97,14 @@ class GameTest {
             assert(!hasEnded)
             assert(hasStarted)
             hasEnded = true
+        }
+
+        override fun onClue(clue: Clue, team: Team) {
+            totalClues++
+        }
+
+        override fun onGuess(guess: Square?, correct: Boolean) {
+            totalGuesses++
         }
 
         fun checkHasEnded() {

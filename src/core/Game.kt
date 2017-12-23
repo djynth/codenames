@@ -32,6 +32,8 @@ class Game(client: GameClient) {
                 clue = spymaster.giveClue().toLowercase()
             } while (!clue.valid(this, currentTeam))
 
+            listeners.forEach { it.onClue(clue, currentTeam) }
+
             val guesses = mutableListOf<Square>()
             history.add(Pair(clue, guesses))
             for (guessCount in 0 until clue.maxGuesses()) {
@@ -41,12 +43,15 @@ class Game(client: GameClient) {
                 } while (guess?.validGuess(board) == false)
 
                 if (guess == null) {
+                    listeners.forEach { it.onGuess(guess, false) }
                     break
                 }
 
                 guesses.add(guess)
 
                 val card = board.reveal(guess)
+                val correct = card.team == currentTeam
+                listeners.forEach { it.onGuess(guess, correct) }
 
                 if (card.team == Team.ASSASSIN) {
                     winner = currentTeam.opponent()
@@ -58,7 +63,7 @@ class Game(client: GameClient) {
                     }
                 }
 
-                if (currentTeam != card.team) {
+                if (!correct) {
                     break
                 }
             }
