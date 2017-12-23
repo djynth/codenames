@@ -1,8 +1,12 @@
 package terminal
 
+import core.Card
+import core.Clue
 import core.Game
 import core.GameClient
 import core.GameInfo
+import core.GameListener
+import core.Square
 import core.Team
 import player.Guesser
 import player.Spymaster
@@ -14,22 +18,20 @@ fun main(args: Array<String>) {
     val seedPhrase = if (args.isEmpty()) {
         println()
         println("Enter a number or phrase to use as a random seed (empty for a random seed):")
-        readLine()
+        val line = readLine()
+        if (line.isNullOrBlank()) null else line
     } else {
         args[0]
     }
 
-    val seed = if (seedPhrase == null || seedPhrase.isEmpty()) {
-        Random().nextLong()
-    } else {
-        seedPhrase.hashCode().toLong()
-    }
+    val seed = seedPhrase?.hashCode()?.toLong() ?: Random().nextLong()
 
     val client = TerminalClient(seed)
     val game = Game(client)
+    game.addListener(TerminalListener())
     val winner = game.play()
 
-    println("$winner wins!")
+    println("${teamWithColor(winner)} wins!")
     println()
     println("Game log:")
     println(game.getHistory())
@@ -50,5 +52,18 @@ class TerminalClient(private val seed: Long) : GameClient {
 
     override fun guesser(team: Team, info: GameInfo): Guesser {
         return TerminalGuesser(team, info)
+    }
+}
+
+class TerminalListener : GameListener {
+    override fun onClue(clue: Clue, team: Team) {
+        println("\r\n".repeat(100))
+    }
+
+    override fun onGuess(guess: Square?, card: Card?, correct: Boolean) {
+        if (card != null) {
+            println()
+            println("Revealed ${cardWithColor(card)}")
+        }
     }
 }

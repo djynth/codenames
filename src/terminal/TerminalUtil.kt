@@ -1,6 +1,7 @@
 package terminal
 
 import core.Board
+import core.Card
 import core.Square
 import core.Team
 
@@ -20,7 +21,7 @@ fun readNonemptyLine(): String {
     }
 }
 
-fun printBoard(board: Board) {
+fun printBoard(board: Board, spymaster: Boolean = false) {
     val maxLength = board.words().map { it.length }.max() ?: 0
     val textWidth = ((maxLength + 3) * Board.COLS) + 1
 
@@ -35,9 +36,7 @@ fun printBoard(board: Board) {
             val padEnd = totalPadding - padStart
             sb.append("|")
             repeat(padStart + 1, { sb.append(" ") })
-            sb.append(colorOf(card.team))
-            sb.append(card.word.toUpperCase())
-            sb.append(ANSI_RESET)
+            sb.append(cardWithColor(card, spymaster))
             repeat(padEnd + 1, { sb.append(" ") })
         }
         sb.appendln("|")
@@ -45,6 +44,17 @@ fun printBoard(board: Board) {
     repeat(textWidth, { sb.append("-") })
 
     println(sb)
+}
+
+fun teamWithColor(team: Team): String {
+    return colorOf(team) + team + ANSI_RESET
+}
+
+fun cardWithColor(card: Card, spymaster: Boolean = false): String {
+    if (spymaster && card.revealed) {
+        return card.word.toUpperCase()
+    }
+    return colorOf(card.team) + card.word.toUpperCase() + ANSI_RESET
 }
 
 private fun colorOf(team: Team?): String {

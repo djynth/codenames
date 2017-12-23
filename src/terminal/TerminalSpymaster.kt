@@ -8,21 +8,22 @@ import player.Spymaster
 class TerminalSpymaster(team: Team, info: GameInfo) : Spymaster(team, info) {
     override fun giveClue(): Clue {
         println()
-        println("$team's turn to give a clue!")
+        println("${teamWithColor(team)}'s turn to give a clue!")
         println()
         println("Press enter to reveal the spymaster board.")
         readLine()
-        printBoard(info.getBoard())
-        println("Enter your clue:")
-        val clue = readNonemptyLine()
-        println("Enter your count:")
-        val count = readNonemptyLine().toIntOrNull() ?: 0
+        printBoard(info.getBoard(), true)
 
-        // add whitespace to cover the revealed board
-        for (i in 1..50) {
-            println()
+        while (true) {
+            println("Enter your clue:")
+            val hint = readNonemptyLine()
+            println("Enter your count:")
+            val count = readNonemptyLine().toIntOrNull() ?: continue
+
+            val clue = Clue(hint, count).toLowercase()
+            if (clue.valid(info.getBoard(), team)) {
+                return clue
+            }
         }
-
-        return Clue(clue, count)
     }
 }

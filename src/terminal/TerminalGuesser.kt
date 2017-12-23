@@ -9,15 +9,15 @@ import player.Guesser
 class TerminalGuesser(team: Team, info: GameInfo) : Guesser(team, info) {
     override fun guess(clue: Clue, guessCount: Int): Square? {
         println()
-        println("$team's turn to guess!")
+        println("${teamWithColor(team)}'s turn to guess!")
         println()
         printBoard(info.getBoard())
         println()
-        println("The clue is: \"${clue.hint}\" | ${clue.count}.")
+        println("The clue is: $clue.")
 
         while (true) {
             println("Input your guess as a word on the board (empty for no guess):")
-            val guess = readLine()?.trim()?.toLowerCase() ?: return null
+            val guess = readLine().orEmpty()
             if (guess.isEmpty()) {
                 return null
             }

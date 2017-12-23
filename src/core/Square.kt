@@ -9,6 +9,10 @@ data class Square(val row: Int, val col: Int) {
         return valid() && !board.isRevealed(this)
     }
 
+    override fun toString(): String {
+        return "[$row,$col]"
+    }
+
     companion object {
         /**
          * All the valid squares on the board, in row-major order.

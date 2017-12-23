@@ -10,12 +10,12 @@ package core
  *    team's unrevealed cards on the board
  */
 data class Clue(val hint: String, val count: Int) {
-    fun valid(game: Game, team: Team): Boolean {
+    fun valid(board: Board, team: Team): Boolean {
         if (count < -1) {
             return false
         }
 
-        if (count > game.board.unrevealed(team).size) {
+        if (count > board.unrevealed(team).size) {
             return false
         }
 
@@ -24,7 +24,7 @@ data class Clue(val hint: String, val count: Int) {
         }
 
         // check that the hint is not on the board
-        if (game.board.words().any { Card.wordsEqual(it, hint) }) {
+        if (board.words().any { Card.wordsEqual(it, hint) }) {
             return false
         }
 
@@ -40,6 +40,10 @@ data class Clue(val hint: String, val count: Int) {
 
     fun toLowercase(): Clue {
         return copy(hint = hint.toLowerCase())
+    }
+
+    override fun toString(): String {
+        return "\"$hint\" | $count"
     }
 
     companion object {

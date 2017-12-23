@@ -1,6 +1,7 @@
 package test
 
 import core.Board
+import core.Card
 import core.Clue
 import core.Game
 import core.GameClient
@@ -103,7 +104,7 @@ class GameTest {
             totalClues++
         }
 
-        override fun onGuess(guess: Square?, correct: Boolean) {
+        override fun onGuess(guess: Square?, card: Card?, correct: Boolean) {
             totalGuesses++
         }
 

@@ -30,7 +30,7 @@ class Game(client: GameClient) {
             var clue: Clue
             do {
                 clue = spymaster.giveClue().toLowercase()
-            } while (!clue.valid(this, currentTeam))
+            } while (!clue.valid(board, currentTeam))
 
             listeners.forEach { it.onClue(clue, currentTeam) }
 
@@ -43,7 +43,7 @@ class Game(client: GameClient) {
                 } while (guess?.validGuess(board) == false)
 
                 if (guess == null) {
-                    listeners.forEach { it.onGuess(guess, false) }
+                    listeners.forEach { it.onGuess(guess, null, false) }
                     break
                 }
 
@@ -51,7 +51,7 @@ class Game(client: GameClient) {
 
                 val card = board.reveal(guess)
                 val correct = card.team == currentTeam
-                listeners.forEach { it.onGuess(guess, correct) }
+                listeners.forEach { it.onGuess(guess, card, correct) }
 
                 if (card.team == Team.ASSASSIN) {
                     winner = currentTeam.opponent()
