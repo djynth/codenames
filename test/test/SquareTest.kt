@@ -27,8 +27,8 @@ class SquareTest {
 
     @Test
     fun testValidSquares() {
-        assertEquals(Board.totalCards(), Square.validSquares.size)
-        assertEquals(Board.totalCards(), Square.validSquares.toSet().size)
+        assertEquals(Board.TOTAL_CARDS, Square.validSquares.size)
+        assertEquals(Board.TOTAL_CARDS, Square.validSquares.toSet().size)
 
         var index = 0
         for (row in 1..Board.ROWS) {

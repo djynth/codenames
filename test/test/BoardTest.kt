@@ -21,7 +21,7 @@ class BoardTest {
 
     @Test
     fun testDefaultState() {
-        assertEquals(Board.ROWS * Board.COLS, Board.totalCards())
+        assertEquals(Board.ROWS * Board.COLS, Board.TOTAL_CARDS)
 
         val cards1 = board1.cards()
         val cards2 = board2.cards()
@@ -34,20 +34,20 @@ class BoardTest {
         assertEquals(Board.FIRST_TEAM_CARDS, board1.unrevealed(Team.RED).size)
         assertEquals(Board.SECOND_TEAM_CARDS, board1.unrevealed(Team.BLUE).size)
         assertEquals(Board.ASSASSIN_CARDS, board1.unrevealed(Team.ASSASSIN).size)
-        assertEquals(Board.neutralCards(), board1.unrevealed(Team.NEUTRAL).size)
+        assertEquals(Board.NEUTRAL_CARDS, board1.unrevealed(Team.NEUTRAL).size)
 
         assertEquals(Board.SECOND_TEAM_CARDS, board2.unrevealed(Team.RED).size)
         assertEquals(Board.FIRST_TEAM_CARDS, board2.unrevealed(Team.BLUE).size)
         assertEquals(Board.ASSASSIN_CARDS, board2.unrevealed(Team.ASSASSIN).size)
-        assertEquals(Board.neutralCards(), board2.unrevealed(Team.NEUTRAL).size)
+        assertEquals(Board.NEUTRAL_CARDS, board2.unrevealed(Team.NEUTRAL).size)
 
         assertEquals(0, board1.revealed(Team.RED).size)
         assertEquals(0, board1.revealed(Team.BLUE).size)
         assertEquals(0, board1.revealed(Team.ASSASSIN).size)
         assertEquals(0, board1.revealed(Team.NEUTRAL).size)
 
-        assertEquals(Board.totalCards(), board1.words().size)
-        assertEquals(Board.totalCards(), board1.cards().size)
+        assertEquals(Board.TOTAL_CARDS, board1.words().size)
+        assertEquals(Board.TOTAL_CARDS, board1.cards().size)
 
         assertEquals(board1.words(), board2.words())
     }
@@ -61,7 +61,7 @@ class BoardTest {
             words.toMutableSet().removeAll(words)
         }
 
-        assertEquals(Board.totalCards(), board1.words().size)
+        assertEquals(Board.TOTAL_CARDS, board1.words().size)
     }
 
     @Test
@@ -78,6 +78,6 @@ class BoardTest {
             }
         }
 
-        assertEquals(Board.totalCards(), board1.cards().size)
+        assertEquals(Board.TOTAL_CARDS, board1.cards().size)
     }
 }

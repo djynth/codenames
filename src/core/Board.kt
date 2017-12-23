@@ -9,12 +9,12 @@ class Board {
 
     internal constructor(rand: Random, first: Team) {
         val dict = CodeWords()
-        val words = dict.pickWords(totalCards(), rand).toList()
+        val words = dict.pickWords(TOTAL_CARDS, rand).toList()
         val teamCounts = mapOf(
                 Pair(first, FIRST_TEAM_CARDS),
                 Pair(first.opponent(), SECOND_TEAM_CARDS),
-                Pair(Team.ASSASSIN, Board.ASSASSIN_CARDS),
-                Pair(Team.NEUTRAL, Board.neutralCards())
+                Pair(Team.ASSASSIN, ASSASSIN_CARDS),
+                Pair(Team.NEUTRAL, NEUTRAL_CARDS)
         )
         val teams = teamCounts.extractByCount(rand)
 
@@ -82,13 +82,7 @@ class Board {
         const val FIRST_TEAM_CARDS = 9
         const val SECOND_TEAM_CARDS = 8
         const val ASSASSIN_CARDS = 1
-
-        fun totalCards(): Int {
-            return ROWS * COLS
-        }
-
-        fun neutralCards(): Int {
-            return Board.totalCards() - FIRST_TEAM_CARDS - SECOND_TEAM_CARDS - ASSASSIN_CARDS
-        }
+        const val TOTAL_CARDS = ROWS * COLS
+        const val NEUTRAL_CARDS = TOTAL_CARDS - FIRST_TEAM_CARDS - SECOND_TEAM_CARDS - ASSASSIN_CARDS
     }
 }
