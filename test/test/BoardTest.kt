@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class BoardTest {
     private lateinit var board1: Board
@@ -50,6 +51,25 @@ class BoardTest {
         assertEquals(Board.TOTAL_CARDS, board1.cards().size)
 
         assertEquals(board1.words(), board2.words())
+    }
+
+    @Test
+    fun testVisible() {
+        val visible = board1.visible()
+        for (square in Square.validSquares) {
+            assertFalse(visible.cardAt(square).revealed)
+            assertFalse(visible.isRevealed(square))
+        }
+
+        assertTrue(visible.unrevealed(Team.BLUE).isEmpty())
+        assertTrue(visible.unrevealed(Team.RED).isEmpty())
+        assertTrue(visible.unrevealed(Team.ASSASSIN).isEmpty())
+        assertTrue(visible.unrevealed(Team.NEUTRAL).isEmpty())
+
+        assertFalse(board1.unrevealed(Team.BLUE).isEmpty())
+        assertFalse(board1.unrevealed(Team.RED).isEmpty())
+        assertFalse(board1.unrevealed(Team.ASSASSIN).isEmpty())
+        assertFalse(board1.unrevealed(Team.NEUTRAL).isEmpty())
     }
 
     @Test

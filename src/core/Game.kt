@@ -4,21 +4,29 @@ import java.util.*
 
 // TODO: error returns for invalid clues/guesses
 
+/**
+ * Represents a single game being played.
+ * Note that Players do not have access to the Game object (since then they would be able to access
+ *  the full [Board]), only a [GameInfo] proxy.
+ */
 class Game(client: GameClient) {
     private val rand: Random = Random(client.seed())
     private val history = mutableListOf<Pair<Clue, List<Square>>>()
     private val listeners = mutableListOf<GameListener>()
-    private val firstTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
-    private var currentTeam = firstTeam
-    private val blueSpymaster = client.spymaster(Team.BLUE, GameInfo(this, true))
-    private val redSpymaster = client.spymaster(Team.RED, GameInfo(this, true))
-    private val blueGuesser = client.guesser(Team.BLUE, GameInfo(this, false))
-    private val redGuesser = client.guesser(Team.RED, GameInfo(this, false))
-    val board = Board(rand, currentTeam)
+    val blueSpymaster = client.spymaster(Team.BLUE, GameInfo(this, true))
+    val redSpymaster = client.spymaster(Team.RED, GameInfo(this, true))
+    val blueGuesser = client.guesser(Team.BLUE, GameInfo(this, false))
+    val redGuesser = client.guesser(Team.RED, GameInfo(this, false))
+    val firstTeam = if (rand.nextBoolean()) Team.RED else Team.BLUE
+    val board = Board(rand, firstTeam)
 
+    /**
+     * Runs a single game.
+     */
     fun play(): Team {
         listeners.forEach { it.onGameStart(this) }
 
+        var currentTeam = firstTeam
         var winner: Team? = null
         while (winner == null) {
             val (spymaster, guesser) = when (currentTeam) {
@@ -53,17 +61,13 @@ class Game(client: GameClient) {
                 val correct = card.team == currentTeam
                 listeners.forEach { it.onGuess(guess, card, correct) }
 
-                if (card.team == Team.ASSASSIN) {
-                    winner = currentTeam.opponent()
-                    break
+                winner = if (card.team == Team.ASSASSIN) {
+                    currentTeam.opponent()
                 } else {
-                    winner = winner()
-                    if (winner != null) {
-                        break
-                    }
+                    winner()
                 }
 
-                if (!correct) {
+                if (winner != null || !correct) {
                     break
                 }
             }
@@ -76,22 +80,31 @@ class Game(client: GameClient) {
         return winner
     }
 
+    /**
+     * Gets a copy of the history of the Game.
+     */
     fun getHistory(): GameHistory {
         return history.toList()
     }
 
+    /**
+     * Adds the given [GameListener] to be notified about future game events.
+     */
     fun addListener(listener: GameListener) {
         listeners.add(listener)
     }
 
+    /**
+     * Gets the number of cards belonging to the given [Team] (both revealed and unrevealed).
+     */
     fun cardsFor(team: Team): Int {
         return if (team == firstTeam) Board.FIRST_TEAM_CARDS else Board.SECOND_TEAM_CARDS
     }
 
-    fun firstTeam(): Team {
-        return firstTeam
-    }
-
+    /**
+     * Determines the winner of the Game, i.e. the [Team] with no unrevealed cards, or null if there
+     *  is no winner.
+     */
     private fun winner(): Team? {
         if (board.unrevealed(Team.RED).isEmpty()) {
             return Team.RED

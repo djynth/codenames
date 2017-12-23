@@ -24,8 +24,8 @@ class GameTest {
         val game = Game(client)
         val listener = TestListener()
         game.addListener(listener)
-        (client.redGuesser as PerfectGuesser).board = game.board
-        (client.blueGuesser as PerfectGuesser).board = game.board
+        (game.redGuesser as PerfectGuesser).board = game.board
+        (game.blueGuesser as PerfectGuesser).board = game.board
 
         val winner = game.play()
         val history = game.getHistory()
@@ -33,7 +33,7 @@ class GameTest {
         listener.checkHasEnded()
 
         // since each guesser makes 1 (correct) guess per turn, the second team to go wins
-        assertEquals(game.firstTeam().opponent(), winner)
+        assertEquals(game.firstTeam.opponent(), winner)
         for (turn in history) {
             assertEquals(1, turn.second.size)
         }
@@ -46,8 +46,8 @@ class GameTest {
         val game = Game(client)
         val listener = TestListener()
         game.addListener(listener)
-        (client.redGuesser as AssassinGuesser).board = game.board
-        (client.blueGuesser as AssassinGuesser).board = game.board
+        (game.redGuesser as AssassinGuesser).board = game.board
+        (game.blueGuesser as AssassinGuesser).board = game.board
 
         val winner = game.play()
         val history = game.getHistory()
@@ -57,7 +57,7 @@ class GameTest {
         assertEquals(1, listener.totalGuesses)
 
         // since the first team immediately guesses the assassin card, the second team wins
-        assertEquals(game.firstTeam().opponent(), winner)
+        assertEquals(game.firstTeam.opponent(), winner)
         assertEquals(1, history.size)
     }
 
@@ -118,34 +118,16 @@ class GameTest {
             private val seed: Long,
             private val guesserFactory: (Team, GameInfo) -> Guesser
     ) : GameClient {
-        lateinit var blueSpymaster: Spymaster
-        lateinit var redSpymaster: Spymaster
-        lateinit var blueGuesser: Guesser
-        lateinit var redGuesser: Guesser
-
-
         override fun seed(): Long {
             return seed
         }
 
         override fun spymaster(team: Team, info: GameInfo): Spymaster {
-            val spymaster = DummySpymaster(team, info)
-            when (team) {
-                Team.BLUE -> blueSpymaster = spymaster
-                Team.RED -> redSpymaster = spymaster
-                else -> throw AssertionError()
-            }
-            return spymaster
+            return DummySpymaster(team, info)
         }
 
         override fun guesser(team: Team, info: GameInfo): Guesser {
-            val guesser = guesserFactory(team, info)
-            when(team) {
-                Team.BLUE -> blueGuesser = guesser
-                Team.RED -> redGuesser = guesser
-                else -> throw AssertionError()
-            }
-            return guesser
+            return guesserFactory(team, info)
         }
     }
 
