@@ -104,6 +104,7 @@ class Game(client: GameClient) {
     /**
      * Determines the winner of the Game, i.e. the [Team] with no unrevealed cards, or null if there
      *  is no winner.
+     * If both [Team]s have no unrevealed cards, defaults to [Team.RED].
      */
     private fun winner(): Team? {
         if (board.unrevealed(Team.RED).isEmpty()) {

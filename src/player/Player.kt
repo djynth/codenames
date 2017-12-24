@@ -10,6 +10,8 @@ sealed class Player(val team: Team, val info: GameInfo)
 abstract class Spymaster(team: Team, info: GameInfo) : Player(team, info) {
     /**
      * Generates a Clue for this team's Guesser on this turn.
+     * This function will be called until a [Clue] which passes [Clue.valid] is given; other [Clue]s
+     *  are ignored.
      */
     abstract fun giveClue(): Clue
 }
@@ -20,6 +22,8 @@ abstract class Guesser(team: Team, info: GameInfo) : Player(team, info) {
      * This function will be called multiple times (until null is returned, a guess is incorrect,
      *  the game has ended, or the clue's max guesses has been reached) with the same Clue to
      *  generate a sequence of guesses.
+     * Additionally, the function will be called until a guess which passes [Square.validGuess] is
+     *  given; other [Square]s are ignored.
      * To stop guessing, return null.
      *
      * @param clue       the Clue given by this team's Spymaster on this turn

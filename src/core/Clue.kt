@@ -2,14 +2,17 @@ package core
 
 /**
  * A single clue given from a team's spymaster to their guesser.
- * A Clue contains a hint, which must be a single all-lowercase word, and a count, which indicates
- *  to the guesser the number of cards associated with the hint.
- * Formal clue requirements:
- *  - The hint must be a single (i.e. no whitespace) word which is not on the board
- *  - The count may be 0, infinity (represented as -1), or a positive number up to the number of the
- *    team's unrevealed cards on the board
+ * A Clue contains a [hint], which must be a single all-lowercase word, and a [count], which
+ *  indicates to the guesser the number of cards associated with the hint.
  */
 data class Clue(val hint: String, val count: Int) {
+    /**
+     * Determines whether this Clue is allowed to be given.
+     * The formal requirements are:
+     *  - The hint must be a single word (i.e. no whitespace) which is not on the board
+     *  - The count may be 0, infinity (represented as -1), or a positive number not exceeding the
+     *    number of the given team's unrevealed cards on the board
+     */
     fun valid(board: Board, team: Team): Boolean {
         if (count < -1) {
             return false
@@ -19,7 +22,7 @@ data class Clue(val hint: String, val count: Int) {
             return false
         }
 
-        if (!hintRegex.matches(hint)) {
+        if (!HINT_REGEX.matches(hint)) {
             return false
         }
 
@@ -34,10 +37,18 @@ data class Clue(val hint: String, val count: Int) {
         return true
     }
 
+    /**
+     * The maximum number of guesses allowed to a [Team] after receiving this Clue.
+     */
     fun maxGuesses(): Int {
         return count + 1
     }
 
+    /**
+     * Creates a copy of this Clue in which the hint is all lowercase.
+     * Lowercase Clues are the canonical version, although Clues of any case are considered
+     *  equivalent.
+     */
     fun toLowercase(): Clue {
         return copy(hint = hint.toLowerCase())
     }
@@ -47,6 +58,6 @@ data class Clue(val hint: String, val count: Int) {
     }
 
     companion object {
-        private val hintRegex = Regex("^[a-z]+\$")
+        private val HINT_REGEX = Regex("^[a-z]+\$")
     }
 }
